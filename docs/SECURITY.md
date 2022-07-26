@@ -21,4 +21,4 @@ currently being supported with security updates.
 
 | Version                    | Supported | End of Support |
 | -------------------------- | --------- | -------------- |
-| Version Number             | YES/NO    | DD Month YYYY  |
+| 0-α1                       | YES       | TBD            |
