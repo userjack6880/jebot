@@ -41,7 +41,7 @@ use File::Random qw/random_line/;
 use File::Slurp;
 use Text::Padding;
 
-my $token = 'ODYyMzQ2MzI4NzY3OTg3NzIy.YOXAmg.r96ZL4mEvhthYCm76idp3ptoujU';
+my $token = '';
 
 my @auth_user = read_file("auth_users", chomp => 1);
 
