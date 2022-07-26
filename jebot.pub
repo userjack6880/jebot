@@ -108,9 +108,9 @@ $bot->add_commands(
     elsif($cmd eq "floridaman") { $bot->say($channel->{id}, "`floridaman`: presents a real floridaman story"); }
     elsif($cmd eq "fortune")    { $bot->say($channel->{id}, "`fortune`: tells a fortune"); }
     elsif($cmd eq "powerball")  { $bot->say($channel->{id}, "`powerball`: not really powerball, you won't win anything"); }
-		elsif($cmd eq "yahtzee")    { $bot->say($channel->{id}, "`yahtzee`: plays a game of yahtzee - issue bare command for instructions"); }
-		elsif($cmd eq "flip")       { $bot->say($channel->{id}, "`flip n`: flips a coin - n: (default 1) number of coins to flip"); }
-		elsif($cmd eq "roll")       { $bot->say($channel->{id}, "`roll d n`: roll a die - d: (default 6) sides of die n: (default 1) number of die"); }
+    elsif($cmd eq "yahtzee")    { $bot->say($channel->{id}, "`yahtzee`: plays a game of yahtzee - issue bare command for instructions"); }
+    elsif($cmd eq "flip")       { $bot->say($channel->{id}, "`flip n`: flips a coin - n: (default 1) number of coins to flip"); }
+    elsif($cmd eq "roll")       { $bot->say($channel->{id}, "`roll d n`: roll a die - d: (default 6) sides of die n: (default 1) number of die"); }
     elsif($cmd eq "help")       { $bot->say($channel->{id}, "`help`: gives an expalantion of the following commands: " 
                                 . join("   ", map {"`$_`"} sort grep {!$commands_hidden{$_}} keys %{$bot->commands}));
                                 }
@@ -144,173 +144,173 @@ $bot->add_commands(
     $bot->say($channel->{id}, "we've drawn... $balls");
   },
 
-	# Flip Coin
-	'flip' => sub {
-		my ($bot, $args, $msg, $channel, $guild) = @_;
-		my @wrds = split / /, $msg->{content};
-		my $repeat = '1';
-		if ($wrds[1]) { if ($wrds[1] < 331) { $repeat = $wrds[1] if $wrds[1] =~ /^\d+$/; }}
-		my $statement;
+  # Flip Coin
+  'flip' => sub {
+    my ($bot, $args, $msg, $channel, $guild) = @_;
+    my @wrds = split / /, $msg->{content};
+    my $repeat = '1';
+    if ($wrds[1]) { if ($wrds[1] < 331) { $repeat = $wrds[1] if $wrds[1] =~ /^\d+$/; }}
+    my $statement;
 
-		while ($repeat > 0) {
-			my $flip = int(rand(2));
-			$statement .= "`tails` " if $flip == 0;
-			$statement .= "`heads` " if $flip == 1;
-			$repeat--;
-		}
+    while ($repeat > 0) {
+      my $flip = int(rand(2));
+      $statement .= "`tails` " if $flip == 0;
+      $statement .= "`heads` " if $flip == 1;
+      $repeat--;
+    }
 
-		$bot->say($channel->{id}, $statement);
-	},
+    $bot->say($channel->{id}, $statement);
+  },
 
-	# Roll Die (Coin Flip Variant)
-	'roll' => sub {
-		my ($bot, $args, $msg, $channel, $guild) = @_;
-		my @wrds = split / /, $msg->{content};
-		my $repeat = '1';
-		my $sides = '6';
-		if ($wrds[1]) { if ($wrds[1] < 331) { $sides = $wrds[1] if $wrds[1] =~ /^\d+$/; }}
-		if ($wrds[2]) { if ($wrds[2] < 331) { $repeat = $wrds[2] if $wrds[2] =~ /^\d+$/; }}
-		my $statement;
+  # Roll Die (Coin Flip Variant)
+  'roll' => sub {
+    my ($bot, $args, $msg, $channel, $guild) = @_;
+    my @wrds = split / /, $msg->{content};
+    my $repeat = '1';
+    my $sides = '6';
+    if ($wrds[1]) { if ($wrds[1] < 331) { $sides = $wrds[1] if $wrds[1] =~ /^\d+$/; }}
+    if ($wrds[2]) { if ($wrds[2] < 331) { $repeat = $wrds[2] if $wrds[2] =~ /^\d+$/; }}
+    my $statement;
 
-		while ($repeat > 0) {
-			my $roll = int(rand($sides)+1);
-			$statement .= "`$roll` ";
-			$repeat--;
-		}
+    while ($repeat > 0) {
+      my $roll = int(rand($sides)+1);
+      $statement .= "`$roll` ";
+      $repeat--;
+    }
 
-		$bot->say($channel->{id}, $statement);
-	},
+    $bot->say($channel->{id}, $statement);
+  },
 
   # Yahtzee
   'yahtzee' => sub {
-		my ($bot, $args, $msg, $channel, $guild) = @_;
-		my @wrds = split / /, $msg->{content};
-		my $cmd = $wrds[1] // 'none';
-		my $api_return = $bot->api_sync(GET => "/users/$msg->{author}{id}");
-		my $username = $api_return->{"username"};
-		my $gameID = $guild->{id}.$channel->{id};
-		my $userID = $msg->{author}{id};
-		my $cmd2 = $wrds[2] // '';
-		if($cmd eq "none") {
-			$bot->say($channel->{id}, "\n**Objective**\n".
-			                         "Roll dice to get the highest score after all 13 rounds.\n".
-			                         "**GamePlay**\n".
-			                         "- Roll up to 3 times each turn to rack up the best possible score.\n".
-			                         "- Decide which dice combo you're going for.\n".
-			                         "- After each turn, choose one category to assign dice to for a score.\n".
-			                         "**Scoring**\n".
-			                         "Upper Scores\n".
-			                         "- Ones, Twos, etc...: Sum of dices with ones, twos, etc... on the face.\n".
-			                         "- Upper Score Bonus: 35 points if sum of upper scores is 63 points.\n".
-			                         "Lower Scores\n".
-			                         "- 3 of a Kind, 4 of a Kind: Total of all dice.\n".
-			                         "- Full House (3 of a kind and pair): 25 points\n".
-			                         "- Low Straight (4 consecutive die): 30 points\n".
-			                         "- High Straight (5 consecutive die): 40 points\n".
-			                         "- Yahtzee (5 of a kind): 50 points\n".
-			                         "- Chance (any 5 die): Total of all dice.\n".
-			                         "- Yahtzee Bonus: If Yahtzee is already scored, you roll a second Yahtzee, and if the corresponding Upper Score category is filled, ".
-			                         "you may assign the roll to a Lower Score category. If there are no free categories, the bonus is lost. Additional Yahtzees are lost.\n".
-			                         "**Commands**\n".
-			                         "`!yahtzee start` Start a new game.\n".
-			                         "`!yahtzee join` Join game.\n".
-		                           "`!yahtzee leave` Leave game.\n".
-			                         "`!yahtzee roll` Roll die.\n".
-			                         "`!yahtzee roll 1,2,3,4,5` Roll die except specified.\n".
-		                           "`!yahtzee apply [category]` Apply roll to category.\n".
-		                           "Valid Categories:\n`ones` `twos` `threes` `fours` `fives` `sixes` `3ofk` `4ofk` `sstra` `lstra` `fh` `yaht` `chance` `lost`\n".
-			                         "`!yahtzee score` Show current game scores.\n".
-			                         "`!yahtzee end` End current game.\n");
-		}
-		if($cmd eq "start") {
-			my $status = $yahtzee->create_game($userID, $username, $gameID);
-			$bot->say($channel->{id}, "Game already started!") if $status == 1;
-			$bot->say($channel->{id}, "Game created!") if $status == 0;
-		}
-		if($cmd eq "join") {
-			my $status = $yahtzee->add_user($userID, $username, $gameID);
-			$bot->say($channel->{id}, "There is no game to join. Try `!yahtzee start`.") if $status == 2;
-			$bot->say($channel->{id}, "$username is already in the game!") if $status == 1;
-			$bot->say($channel->{id}, "$username joined the game!") if $status == 0;
-		}
-		if($cmd eq "leave") {
-			my $status = $yahtzee->remove_user($userID, $gameID);
-			$bot->say($channel->{id}, "There is no game to leave.") if $status == 2;
-			$bot->say($channel->{id}, "$username isn't in the game!") if $status == 1;
-			$bot->say($channel->{id}, "$username left the game!") if $status == 0;
-		}
-		if($cmd eq "roll") {
-			my $status = $yahtzee->roll($gameID, $userID, $cmd2);
-			$bot->say($channel->{id}, "You can't roll anymore.") if $status == 2;
-			$bot->say($channel->{id}, "Not in a game.") if $status == 1;
-			$bot->say($channel->{id}, "$username roll : `".$yahtzee->get_roll($gameID, $userID)."`") if $status == 0;
-		}
-		if($cmd eq "apply") {
-			my $status = $yahtzee->apply($gameID, $userID, $cmd2);
-			$bot->say($channel->{id}, "You need to roll first.") if $status == 2;
-			$bot->say($channel->{id}, "You cannot apply that roll to this category.") if $status == 1;
-			$bot->say($channel->{id}, "Roll applied. Your score is ".$yahtzee->calculate_score($gameID,$userID).".") if $status == 0;
-		}
-		if($cmd eq "score") {
-			if ($cmd2) {
-				my $status_a = $yahtzee->apply($gameID, $userID, $cmd2);
-				$bot->say($channel->{id}, "You need to roll first.") if $status_a == 2;
-				$bot->say($channel->{id}, "You cannot apply that roll to this category.") if $status_a == 1;
-				$bot->say($channel->{id}, "Roll applied. Your score is ".$yahtzee->calculate_score($gameID,$userID).".") if $status_a == 0;
-			}
-			my $status = $yahtzee->get_gameStatus($gameID);
-			if ($status == 1) { $bot->say($channel->{id}, "There is no game!"); }
-			else {
-			  my @userlist;
+    my ($bot, $args, $msg, $channel, $guild) = @_;
+    my @wrds = split / /, $msg->{content};
+    my $cmd = $wrds[1] // 'none';
+    my $api_return = $bot->api_sync(GET => "/users/$msg->{author}{id}");
+    my $username = $api_return->{"username"};
+    my $gameID = $guild->{id}.$channel->{id};
+    my $userID = $msg->{author}{id};
+    my $cmd2 = $wrds[2] // '';
+    if($cmd eq "none") {
+      $bot->say($channel->{id}, "\n**Objective**\n".
+                               "Roll dice to get the highest score after all 13 rounds.\n".
+                               "**GamePlay**\n".
+                               "- Roll up to 3 times each turn to rack up the best possible score.\n".
+                               "- Decide which dice combo you're going for.\n".
+                               "- After each turn, choose one category to assign dice to for a score.\n".
+                               "**Scoring**\n".
+                               "Upper Scores\n".
+                               "- Ones, Twos, etc...: Sum of dices with ones, twos, etc... on the face.\n".
+                               "- Upper Score Bonus: 35 points if sum of upper scores is 63 points.\n".
+                               "Lower Scores\n".
+                               "- 3 of a Kind, 4 of a Kind: Total of all dice.\n".
+                               "- Full House (3 of a kind and pair): 25 points\n".
+                               "- Low Straight (4 consecutive die): 30 points\n".
+                               "- High Straight (5 consecutive die): 40 points\n".
+                               "- Yahtzee (5 of a kind): 50 points\n".
+                               "- Chance (any 5 die): Total of all dice.\n".
+                               "- Yahtzee Bonus: If Yahtzee is already scored, you roll a second Yahtzee, and if the corresponding Upper Score category is filled, ".
+                               "you may assign the roll to a Lower Score category. If there are no free categories, the bonus is lost. Additional Yahtzees are lost.\n".
+                               "**Commands**\n".
+                               "`!yahtzee start` Start a new game.\n".
+                               "`!yahtzee join` Join game.\n".
+                               "`!yahtzee leave` Leave game.\n".
+                               "`!yahtzee roll` Roll die.\n".
+                               "`!yahtzee roll 1,2,3,4,5` Roll die except specified.\n".
+                               "`!yahtzee apply [category]` Apply roll to category.\n".
+                               "Valid Categories:\n`ones` `twos` `threes` `fours` `fives` `sixes` `3ofk` `4ofk` `sstra` `lstra` `fh` `yaht` `chance` `lost`\n".
+                               "`!yahtzee score` Show current game scores.\n".
+                               "`!yahtzee end` End current game.\n");
+    }
+    if($cmd eq "start") {
+      my $status = $yahtzee->create_game($userID, $username, $gameID);
+      $bot->say($channel->{id}, "Game already started!") if $status == 1;
+      $bot->say($channel->{id}, "Game created!") if $status == 0;
+    }
+    if($cmd eq "join") {
+      my $status = $yahtzee->add_user($userID, $username, $gameID);
+      $bot->say($channel->{id}, "There is no game to join. Try `!yahtzee start`.") if $status == 2;
+      $bot->say($channel->{id}, "$username is already in the game!") if $status == 1;
+      $bot->say($channel->{id}, "$username joined the game!") if $status == 0;
+    }
+    if($cmd eq "leave") {
+      my $status = $yahtzee->remove_user($userID, $gameID);
+      $bot->say($channel->{id}, "There is no game to leave.") if $status == 2;
+      $bot->say($channel->{id}, "$username isn't in the game!") if $status == 1;
+      $bot->say($channel->{id}, "$username left the game!") if $status == 0;
+    }
+    if($cmd eq "roll") {
+      my $status = $yahtzee->roll($gameID, $userID, $cmd2);
+      $bot->say($channel->{id}, "You can't roll anymore.") if $status == 2;
+      $bot->say($channel->{id}, "Not in a game.") if $status == 1;
+      $bot->say($channel->{id}, "$username roll : `".$yahtzee->get_roll($gameID, $userID)."`") if $status == 0;
+    }
+    if($cmd eq "apply") {
+      my $status = $yahtzee->apply($gameID, $userID, $cmd2);
+      $bot->say($channel->{id}, "You need to roll first.") if $status == 2;
+      $bot->say($channel->{id}, "You cannot apply that roll to this category.") if $status == 1;
+      $bot->say($channel->{id}, "Roll applied. Your score is ".$yahtzee->calculate_score($gameID,$userID).".") if $status == 0;
+    }
+    if($cmd eq "score") {
+      if ($cmd2) {
+        my $status_a = $yahtzee->apply($gameID, $userID, $cmd2);
+        $bot->say($channel->{id}, "You need to roll first.") if $status_a == 2;
+        $bot->say($channel->{id}, "You cannot apply that roll to this category.") if $status_a == 1;
+        $bot->say($channel->{id}, "Roll applied. Your score is ".$yahtzee->calculate_score($gameID,$userID).".") if $status_a == 0;
+      }
+      my $status = $yahtzee->get_gameStatus($gameID);
+      if ($status == 1) { $bot->say($channel->{id}, "There is no game!"); }
+      else {
+        my @userlist;
 
-			  foreach my $t_userID (keys %{$yahtzee->{$gameID}}) {
-			    next if $t_userID eq 'gamestatus';
-			    push(@userlist, $userID);
-			  }
-				if (!$userlist[0]) { $bot->say($channel->{id}, "There are no users!"); }
-				else {
-					my $scoreCardText = "```";
-					my $pad = Text::Padding->new;
-					foreach my $t_userID (@userlist) {
-						print "userID: $t_userID\n\n";
-						my $a = $bot->api_sync(GET => "/users/$t_userID");
-						my $u = $pad->left($a->{"username"}, 16);
-						my $scoreCard = $yahtzee->get_scoreCard($gameID,$t_userID);
-						my $score  = $pad->left($yahtzee->calculate_score($gameID,$t_userID),4);
-						my $ones   = $pad->left($scoreCard->{ones}{score},4);
-						my $twos   = $pad->left($scoreCard->{twos}{score},4);
-						my $threes = $pad->left($scoreCard->{threes}{score},4);
-						my $fours  = $pad->left($scoreCard->{fours}{score},4);
-						my $fives  = $pad->left($scoreCard->{fives}{score},4);
-						my $sixes  = $pad->left($scoreCard->{sixes}{score},4);
-						my $tofk   = $pad->left($scoreCard->{'3ofk'}{score},4);
-						my $fofk   = $pad->left($scoreCard->{'4ofk'}{score},4);
-						my $sstra  = $pad->left($scoreCard->{sstra}{score},4);
-						my $lstra  = $pad->left($scoreCard->{lstra}{score},4);
-						my $fh     = $pad->left($scoreCard->{fh}{score},4);
-						my $yaht   = $pad->left($scoreCard->{yaht}{score},4);
-						my $chance = $pad->left($scoreCard->{chance}{score},4);
-						$scoreCardText .= " $u |     Score | $score \n".
-						                  " Upper Scores     | Lower Scores   \n".
-						                  "      Ones | $ones | 3-of-Kind | $tofk\n".
-						                  "      Twos | $twos | 4-of-Kind | $fofk\n".
-						                  "    Threes | $threes | FullHouse | $fh\n".
-						                  "     Fours | $fours | SStraight | $sstra\n".
-						                  "     Fives | $fives | LStraight | $lstra\n".
-						                  "     Sixes | $sixes |   Yahtzee | $yaht\n".
-						                  "                  |    Chance | $chance\n".
-						                  " ------------------------------------\n";
-					}
-					$scoreCardText .= "```";
-					$bot->say($channel->{id}, $scoreCardText);
-				}
-			}
-		}
-		if($cmd eq "end") {
-			my $status = $yahtzee->end_game($gameID);
-			$bot->say($channel->{id}, "No game to end.") if $status == 1;
-			$bot->say($channel->{id}, "Thanks for playing!") if $status == 0;
-		}
+        foreach my $t_userID (keys %{$yahtzee->{$gameID}}) {
+          next if $t_userID eq 'gamestatus';
+          push(@userlist, $userID);
+        }
+        if (!$userlist[0]) { $bot->say($channel->{id}, "There are no users!"); }
+        else {
+          my $scoreCardText = "```";
+          my $pad = Text::Padding->new;
+          foreach my $t_userID (@userlist) {
+            print "userID: $t_userID\n\n";
+            my $a = $bot->api_sync(GET => "/users/$t_userID");
+            my $u = $pad->left($a->{"username"}, 16);
+            my $scoreCard = $yahtzee->get_scoreCard($gameID,$t_userID);
+            my $score  = $pad->left($yahtzee->calculate_score($gameID,$t_userID),4);
+            my $ones   = $pad->left($scoreCard->{ones}{score},4);
+            my $twos   = $pad->left($scoreCard->{twos}{score},4);
+            my $threes = $pad->left($scoreCard->{threes}{score},4);
+            my $fours  = $pad->left($scoreCard->{fours}{score},4);
+            my $fives  = $pad->left($scoreCard->{fives}{score},4);
+            my $sixes  = $pad->left($scoreCard->{sixes}{score},4);
+            my $tofk   = $pad->left($scoreCard->{'3ofk'}{score},4);
+            my $fofk   = $pad->left($scoreCard->{'4ofk'}{score},4);
+            my $sstra  = $pad->left($scoreCard->{sstra}{score},4);
+            my $lstra  = $pad->left($scoreCard->{lstra}{score},4);
+            my $fh     = $pad->left($scoreCard->{fh}{score},4);
+            my $yaht   = $pad->left($scoreCard->{yaht}{score},4);
+            my $chance = $pad->left($scoreCard->{chance}{score},4);
+            $scoreCardText .= " $u |     Score | $score \n".
+                              " Upper Scores     | Lower Scores   \n".
+                              "      Ones | $ones | 3-of-Kind | $tofk\n".
+                              "      Twos | $twos | 4-of-Kind | $fofk\n".
+                              "    Threes | $threes | FullHouse | $fh\n".
+                              "     Fours | $fours | SStraight | $sstra\n".
+                              "     Fives | $fives | LStraight | $lstra\n".
+                              "     Sixes | $sixes |   Yahtzee | $yaht\n".
+                              "                  |    Chance | $chance\n".
+                              " ------------------------------------\n";
+          }
+          $scoreCardText .= "```";
+          $bot->say($channel->{id}, $scoreCardText);
+        }
+      }
+    }
+    if($cmd eq "end") {
+      my $status = $yahtzee->end_game($gameID);
+      $bot->say($channel->{id}, "No game to end.") if $status == 1;
+      $bot->say($channel->{id}, "Thanks for playing!") if $status == 0;
+    }
   },
 
   # Excuse Generator Commands
