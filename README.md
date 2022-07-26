@@ -67,7 +67,7 @@ Support will be provided as outlined in the following schedule. For more details
 
 | Version                       | Support Level    | Released       | End of Support | End of Life   |
 | ----------------------------- | ---------------- | -------------- | -------------- | ------------- |
-| 0-α1                          | Full Support     |                | TBD            | TBD           |
+| 0-α1                          | Full Support     | 26 July 2022   | TBD            | TBD           |
 
 # Contributing
 

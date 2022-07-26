@@ -4,7 +4,7 @@ Due to the limited time available to developrs to maintain support, dates must b
 
 | Version                       | Support Level    | Released       | End of Support | End of Life   |
 | ----------------------------- | ---------------- | -------------- | -------------- | ------------- |
-| 0-α1                          | Full Support     |                | TBD            | TBD           |
+| 0-α1                          | Full Support     | 26 July 2022   | TBD            | TBD           |
 
 # Support Levels
 
