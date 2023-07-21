@@ -45,6 +45,7 @@ use URI;
 use HTTP::Request;
 use HTTP::Headers;
 use AnyEvent::HTTP;
+use Data::Dumper;
 
 my $debug = 0;
 
@@ -53,13 +54,13 @@ sub new {
 
   my $self = {
     token => delete($args{token}),
-    api_root => delete($args{api_root}) // 'https://discordapp.com/api',
+    api_root => delete($args{api_root}) // 'https://discord.com/api/v7',
     prefix => delete($args{prefix}) // "!",
     commands => delete($args{commands}) // {},
     status => delete($args{status}) // "nothing!",
 
     ua => LWP::UserAgent->new(),
-    api_useragent => "DiscordBot (https://github.com/topaz/perl-AnyEvent-Discord-Client, 0)",
+    api_useragent => "DiscordBot (https://github.com/userjack6880/jebot, 1)",
 
     user => undef,
     guilds => {},
@@ -177,7 +178,7 @@ sub connect {
     die 'invalid gateway' unless $gateway =~ /^wss\:\/\//;
     $gateway = new URI($gateway);
     $gateway->path("/") unless length $gateway->path;
-    $gateway->query_form(v=>6, encoding=>"json");
+    $gateway->query_form(v=>7, encoding=>"json");
     $self->{gateway} = "$gateway";
   }
 
@@ -279,18 +280,22 @@ sub api_sync {
       ),
     ),
     (
-        !defined $data ? undef
+      !defined $data ? undef
       : ref $data ? encode_json($data)
       : $data
     ),
   ));
 
+  print Dumper($resp) if $debug;
+
   if (!$resp->is_success) {
+    print "response uncessful! $resp->status_line\n";
     return undef;
   }
   if ($resp->header("Content-Type") eq 'application/json') {
     return JSON::decode_json($resp->decoded_content);
   } else {
+    print "response not type application/json!\n";
     return 1;
   }
 }
